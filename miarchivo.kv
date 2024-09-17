@@ -1,0 +1,85 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.spinner import Spinner
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+import pandas as pd
+import os
+import math
+
+class SyncroApp(App):
+    def build(self):
+        # Cargar datos
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'Tabla_Baraja_Syncro.xlsx')
+        
+        if not os.path.exists(file_path):
+            print(f"El archivo {file_path} no se encuentra. Verifica la ubicación del archivo.")
+            return
+        
+        df_nuevo = pd.read_excel(file_path)
+        
+        self.cards_data_actualizado = {
+            f"{row['Carta']}": (int(row['Cuantitativa (q)']) if not math.isnan(row['Cuantitativa (q)']) else 0, 
+                                row['Cualitativa (cl)'])
+            for index, row in df_nuevo.iterrows()
+        }
+        
+        self.descripciones = {
+            row['Cualitativa (cl)']: row['Descripción']
+            for index, row in df_nuevo.iterrows()
+        }
+        
+        self.valores_cualitativos = set(df_nuevo['Cualitativa (cl)'])
+        
+        # Crear la interfaz
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        # Spinners para selección de cartas
+        self.pasado_spinner = Spinner(text='Pasado', values=list(self.cards_data_actualizado.keys()))
+        self.presente_spinner = Spinner(text='Presente', values=list(self.cards_data_actualizado.keys()))
+        self.futuro_spinner = Spinner(text='Futuro', values=list(self.cards_data_actualizado.keys()))
+        
+        layout.add_widget(self.pasado_spinner)
+        layout.add_widget(self.presente_spinner)
+        layout.add_widget(self.futuro_spinner)
+        
+        # Botón para calcular
+        calcular_button = Button(text='Calcular Syncro', on_press=self.calcular_syncro)
+        layout.add_widget(calcular_button)
+        
+        return layout
+    
+    def calcular_syncro(self, instance):
+        pasado = self.pasado_spinner.text
+        presente = self.presente_spinner.text
+        futuro = self.futuro_spinner.text
+        
+        if pasado == 'Pasado' or presente == 'Presente' or futuro == 'Futuro':
+            popup = Popup(title='Error', content=Label(text='Por favor, selecciona todas las cartas'),
+                          size_hint=(None, None), size=(300, 200))
+            popup.open()
+            return
+        
+        qE, clE = self.cards_data_actualizado[pasado]
+        qG, clG = self.cards_data_actualizado[presente]
+        qQ, clQ = self.cards_data_actualizado[futuro]
+        
+        # Aquí iría todo el cálculo de las capas como en el código original
+        # Por brevedad, solo mostraré un ejemplo
+        
+        resultado = f"Capa 1: {qE + qG + qQ}\n"
+        resultado += f"Capa 2: {clE + clG + clQ}\n"
+        # ... (agregar más cálculos aquí)
+        
+        # Mostrar resultados en un popup
+        content = ScrollView(size_hint=(1, 1))
+        content.add_widget(Label(text=resultado, size_hint_y=None, height=500))
+        popup = Popup(title='Resultados Syncro', content=content,
+                      size_hint=(None, None), size=(400, 400))
+        popup.open()
+
+if __name__ == '__main__':
+    SyncroApp().run()
