@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = Baraja Syncro
 
 # (str) Package name
-package.name = myapp
+package.name = baraja_syncro
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = org.kasedema
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy
+requirements = python3,kivy,pandas,openpyxl,numpy
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
